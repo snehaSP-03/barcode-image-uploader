@@ -27,6 +27,33 @@ class _LookupScreenState extends State<LookupScreen> {
     super.dispose();
   }
 
+  Future<void> _confirmLogout() async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Sign out?'),
+        content: const Text(
+          'You will need to sign in again with your Ops/Admin account to continue.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
+            child: const Text('Sign out'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldLogout == true) {
+      await AuthStore.instance.logout();
+    }
+  }
+
   Future<void> _openScanner() async {
     setState(() {
       _error = null;
@@ -90,7 +117,7 @@ class _LookupScreenState extends State<LookupScreen> {
         actions: [
           IconButton(
             tooltip: 'Sign out',
-            onPressed: () => AuthStore.instance.logout(),
+            onPressed: _confirmLogout,
             icon: const Icon(Icons.logout),
           ),
         ],
