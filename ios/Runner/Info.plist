@@ -67,7 +67,7 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>Take product photos to upload.</string>
+	<string>Scan product barcodes and take product photos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Select product photos to upload.</string>
 </dict>

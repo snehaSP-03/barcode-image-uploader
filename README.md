@@ -43,7 +43,7 @@ Sign in with an **Admin/Ops** account (phone/email + 4-digit PIN).
 
 ## Operator flow
 
-1. Enter barcode → **Find product**
+1. **Scan barcode** (camera) or type digits → lookup runs automatically after a scan
 2. **200** → product screen (name, brand, sku, barcode, status, photos)
 3. **404** → “Product not in catalog” — stop
 4. Add photo (if under 5): gallery/camera → presign → S3 PUT → PATCH full keys → UI from returned `item`

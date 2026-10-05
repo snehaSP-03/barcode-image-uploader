@@ -5,6 +5,7 @@ import '../api/inventory_api.dart';
 import '../auth/auth_store.dart';
 import '../auth/errors.dart';
 import '../theme.dart';
+import 'barcode_scanner_screen.dart';
 import 'product_screen.dart';
 
 class LookupScreen extends StatefulWidget {
@@ -26,6 +27,24 @@ class _LookupScreenState extends State<LookupScreen> {
     super.dispose();
   }
 
+  Future<void> _openScanner() async {
+    setState(() {
+      _error = null;
+      _notInCatalogBarcode = null;
+    });
+
+    final scanned = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => const BarcodeScannerScreen()),
+    );
+
+    if (!mounted || scanned == null || scanned.isEmpty) return;
+
+    // Keep digits for product barcodes; if scan has letters (CODE128), keep as-is.
+    final value = scanned.trim();
+    _barcodeController.text = value;
+    await _lookup();
+  }
+
   Future<void> _lookup() async {
     final barcode = _barcodeController.text.trim();
     setState(() {
@@ -37,7 +56,7 @@ class _LookupScreenState extends State<LookupScreen> {
     if (barcode.isEmpty) {
       setState(() {
         _loading = false;
-        _error = 'Enter a barcode.';
+        _error = 'Scan or enter a barcode.';
       });
       return;
     }
@@ -46,7 +65,6 @@ class _LookupScreenState extends State<LookupScreen> {
       final product = await InventoryApi.getByBarcode(barcode);
       if (!mounted) return;
       if (product == null) {
-        // 404 not_found — stop. Do not create / enrich.
         setState(() => _notInCatalogBarcode = barcode);
         return;
       }
@@ -108,15 +126,43 @@ class _LookupScreenState extends State<LookupScreen> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Looks up an existing catalog product, then lets you add photos (max 5).',
+                      'Scan with the camera, or type the barcode, then look up the product.',
                       style: TextStyle(color: AppColors.muted, height: 1.4),
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      onPressed: _loading ? null : _openScanner,
+                      icon: const Icon(Icons.qr_code_scanner),
+                      label: const Text('Scan barcode'),
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(52),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        const Expanded(child: Divider()),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            'or enter manually',
+                            style: TextStyle(color: AppColors.muted.withValues(alpha: 0.9), fontSize: 13),
+                          ),
+                        ),
+                        const Expanded(child: Divider()),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: _barcodeController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Barcode',
                         hintText: 'e.g. 8902080001361',
+                        suffixIcon: IconButton(
+                          tooltip: 'Scan',
+                          onPressed: _loading ? null : _openScanner,
+                          icon: const Icon(Icons.camera_alt_outlined),
+                        ),
                       ),
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -144,13 +190,13 @@ class _LookupScreenState extends State<LookupScreen> {
                       ),
                     ],
                     const SizedBox(height: 16),
-                    FilledButton(
+                    OutlinedButton(
                       onPressed: _loading ? null : _lookup,
                       child: _loading
                           ? const SizedBox(
                               height: 22,
                               width: 22,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('Find product'),
                     ),
