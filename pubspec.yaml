@@ -1,0 +1,28 @@
+name: barcode_image_uploader
+description: Flutter app to look up products by barcode and upload images to S3 via the Bhima API.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  http: ^1.6.0
+  flutter_dotenv: ^6.0.1
+  flutter_secure_storage: ^11.2.0
+  image_picker: ^1.2.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env
+    - .env.development.local
+    - .env.production.local
